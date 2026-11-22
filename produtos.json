@@ -526,5 +526,27 @@
     "affiliateUrl": "https://meli.la/2HSnapx",
     "featured": true,
     "bestSeller": false
+  },
+  {
+    "id": 49,
+    "name": "Kit 2 Ventiladores De Teto Retrátil Lâmpada 3 Cores 60w",
+    "category": "Itens de Casa",
+    "price": "R$77,84",
+    "oldPrice": "R$97,30",
+    "image": "https://http2.mlstatic.com/D_NQ_NP_2X_851051-MLB116279313920_092026-F-kit-2-ventiladores--de-teto-retratil-lampada-3-cores-60w.webp",
+    "affiliateUrl": "https://meli.la/2UgYnpg",
+    "featured": true,
+    "bestSeller": false
+  },
+  {
+    "id": 50,
+    "name": "Calha Defletor Chuva 2 Porta Gol Parati G2 G3 G4 1995 A 2016",
+    "category": "Automotivo",
+    "price": "R$92,01",
+    "oldPrice": "R$108,25",
+    "image": "https://http2.mlstatic.com/D_NQ_NP_2X_838657-MLB112443951889_052026-F-calha-defletor-chuva-2-porta-gol-parati-g2-g3-g4-1995-a-2016.webp",
+    "affiliateUrl": "https://meli.la/2AbxZ5o",
+    "featured": true,
+    "bestSeller": false
   }
 ]
