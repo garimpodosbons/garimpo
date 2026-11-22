@@ -1,3 +1,4 @@
+
 const productsGrid = document.getElementById("productsGrid");
 const searchInput = document.getElementById("searchInput");
 const searchButton = document.getElementById("searchButton");
@@ -96,12 +97,15 @@ function renderCategoryFilters() {
         "Games e Consoles",
         "Relógios e Joias",
         "Suplementos e Nutrição",
-        "Celulares e Smartphones"
+        "Celulares e Smartphones",
+        "Automotivo"
     ];
 
     const extraCategories = [...new Set(
         products.map(product => product.category).filter(Boolean)
-    )].filter(category => !categoryOrder.includes(category));
+    )].filter(category =>
+        !categoryOrder.some(item => normalizeText(item) === normalizeText(category))
+    );
 
     const categories = [...categoryOrder, ...extraCategories];
 
@@ -242,6 +246,7 @@ function updateLoadMoreButton() {
         button.textContent = "Carregar mais produtos";
         button.style.display = "block";
         button.style.margin = "30px auto";
+
         button.addEventListener("click", () => {
             visibleProducts += productsPerPage;
             renderProducts(filteredProducts);
@@ -323,7 +328,7 @@ function selectCategory(category) {
     selectedCategory = category;
 
     document.querySelectorAll('input[name="categoryFilter"]').forEach(input => {
-        input.checked = input.value === category;
+        input.checked = normalizeText(input.value) === normalizeText(category);
     });
 
     filterProducts();
