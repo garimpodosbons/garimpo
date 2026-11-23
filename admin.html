@@ -377,15 +377,12 @@
     </header>
 
     <main>
-
         <div class="editor-layout">
-
             <section class="panel">
                 <h2>Adicionar produto</h2>
 
                 <form id="productForm">
                     <div class="form-grid">
-
                         <div class="field">
                             <label for="name">Nome do produto *</label>
                             <input type="text" id="name" placeholder="Nome do produto" required>
@@ -398,18 +395,14 @@
                                 <option value="Cabelo">Cabelo</option>
                                 <option value="Sapatos">Sapatos</option>
                                 <option value="Skincare">Skincare</option>
-                                <option value="Esportes">Esportes</option>
                                 <option value="Maquiagem">Maquiagem</option>
-                                <option value="Escritório">Escritório</option>
                                 <option value="Eletrônicos">Eletrônicos</option>
-                                <option value="Informática">Informática</option>
                                 <option value="Ferramentas">Ferramentas</option>
                                 <option value="Itens de Casa">Itens de Casa</option>
                                 <option value="Games e Consoles">Games e Consoles</option>
                                 <option value="Relógios e Joias">Relógios e Joias</option>
                                 <option value="Suplementos e Nutrição">Suplementos e Nutrição</option>
                                 <option value="Celulares e Smartphones">Celulares e Smartphones</option>
-                                <option value="Automotivo">Automotivo</option>
                             </select>
                         </div>
 
@@ -432,7 +425,6 @@
                             <label for="affiliateUrl">Link de afiliado *</label>
                             <input type="url" id="affiliateUrl" placeholder="https://..." required>
                         </div>
-
                     </div>
 
                     <div class="checks">
@@ -471,7 +463,6 @@
                     </div>
                 </div>
             </aside>
-
         </div>
 
         <section class="panel">
@@ -493,7 +484,6 @@
                 <p class="empty">Carregando produtos...</p>
             </div>
         </section>
-
     </main>
 
     <script>
@@ -515,6 +505,14 @@
             bestSeller: document.getElementById("bestSeller")
         };
 
+        function normalizeText(text) {
+            return String(text || "")
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .trim();
+        }
+
         function escapeHTML(value) {
             return String(value ?? "").replace(/[&<>"']/g, character => ({
                 "&": "&amp;",
@@ -523,6 +521,11 @@
                 '"': "&quot;",
                 "'": "&#039;"
             })[character]);
+        }
+
+        function isAllowedCategory(category) {
+            const normalized = normalizeText(category);
+            return !["esportes", "escritorio", "informatica"].includes(normalized);
         }
 
         function updatePreview() {
@@ -544,6 +547,7 @@
 
             image.style.display = "none";
             placeholder.style.display = "block";
+            placeholder.textContent = "A imagem aparecerá aqui";
 
             if (imageUrl) {
                 image.onload = () => {
@@ -558,6 +562,8 @@
                 };
 
                 image.src = imageUrl;
+            } else {
+                image.removeAttribute("src");
             }
 
             const badges = [];
@@ -590,7 +596,8 @@
                 try {
                     products = JSON.parse(savedProducts);
                     if (!Array.isArray(products)) throw new Error();
-                    renderProducts();
+                    products = products.filter(product => isAllowedCategory(product.category));
+                    saveProducts();
                     return;
                 } catch {
                     localStorage.removeItem(STORAGE_KEY);
@@ -604,7 +611,8 @@
                 products = await response.json();
                 if (!Array.isArray(products)) throw new Error();
 
-                renderProducts();
+                products = products.filter(product => isAllowedCategory(product.category));
+                saveProducts();
             } catch {
                 productList.innerHTML = '<p class="empty">Não foi possível carregar o produtos.json.</p>';
             }
@@ -634,6 +642,11 @@
 
         productForm.addEventListener("submit", function(event) {
             event.preventDefault();
+
+            if (!isAllowedCategory(fields.category.value)) {
+                alert("Essa categoria não está disponível.");
+                return;
+            }
 
             const newId = products.reduce((highest, product) => {
                 const id = Number(product.id);
@@ -713,9 +726,13 @@
                     throw new Error("O arquivo contém produtos inválidos.");
                 }
 
-                if (!confirm(`Importar ${importedProducts.length} produto(s)? O catálogo atual será substituído.`)) return;
+                const allowedProducts = importedProducts.filter(product =>
+                    isAllowedCategory(product.category)
+                );
 
-                products = importedProducts;
+                if (!confirm(`Importar ${allowedProducts.length} produto(s)? O catálogo atual será substituído.`)) return;
+
+                products = allowedProducts;
                 saveProducts();
 
                 alert("Produtos importados!");

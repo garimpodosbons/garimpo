@@ -1,4 +1,3 @@
-
 const productsGrid = document.getElementById("productsGrid");
 const searchInput = document.getElementById("searchInput");
 const searchButton = document.getElementById("searchButton");
@@ -17,6 +16,11 @@ function normalizeText(text) {
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase()
         .trim();
+}
+
+function isAllowedCategory(category) {
+    const normalized = normalizeText(category);
+    return !["esportes", "escritorio", "informatica"].includes(normalized);
 }
 
 function parsePrice(value) {
@@ -71,6 +75,8 @@ async function loadProducts() {
             throw new Error("O catálogo de produtos é inválido.");
         }
 
+        products = products.filter(product => isAllowedCategory(product.category));
+
         renderCategoryFilters();
         filterProducts();
 
@@ -87,23 +93,20 @@ function renderCategoryFilters() {
         "Cabelo",
         "Sapatos",
         "Skincare",
-        "Esportes",
         "Maquiagem",
-        "Escritório",
         "Eletrônicos",
-        "Informática",
         "Ferramentas",
         "Itens de Casa",
         "Games e Consoles",
         "Relógios e Joias",
         "Suplementos e Nutrição",
-        "Celulares e Smartphones",
-        "Automotivo"
+        "Celulares e Smartphones"
     ];
 
     const extraCategories = [...new Set(
         products.map(product => product.category).filter(Boolean)
     )].filter(category =>
+        isAllowedCategory(category) &&
         !categoryOrder.some(item => normalizeText(item) === normalizeText(category))
     );
 
@@ -114,6 +117,7 @@ function renderCategoryFilters() {
             <input type="radio" name="categoryFilter" value="" checked>
             Todas as categorias
         </label>
+
         ${categories.map(category => `
             <label class="filter-option">
                 <input type="radio" name="categoryFilter" value="${escapeHTML(category)}">
@@ -261,6 +265,7 @@ function updateLoadMoreButton() {
 function filterProducts() {
     const term = normalizeText(searchInput.value);
     const minPrice = parsePrice(document.getElementById("minPrice").value);
+
     const maxInput = document.getElementById("maxPrice").value;
     const maxPrice = maxInput === "" ? Infinity : parsePrice(maxInput);
 
@@ -328,7 +333,7 @@ function selectCategory(category) {
     selectedCategory = category;
 
     document.querySelectorAll('input[name="categoryFilter"]').forEach(input => {
-        input.checked = normalizeText(input.value) === normalizeText(category);
+        input.checked = input.value === category;
     });
 
     filterProducts();
